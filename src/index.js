@@ -1,38 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SeasonDisplay from './SeasonDisplay'
+import Spinner from './Spinner'
 class App extends React.Component{
-
-  //initlize state in constructor
-  constructor(props){
-    //React.compontent constrcutor call
-    super(props);
-    //part of React.Compontent, need to init here with null
-    this.state={ lat: null, errorMessage: '' }
+  state={ lat: null, errorMessage: '' }
+  componentDidMount(){
     window.navigator.geolocation.getCurrentPosition(
-      (position)=>{
-        //need to call the setState function
-        this.setState({lat: position.coords.latitude})
-      },
-      (err)=>{
-        this.setState({lat: err.message})
-      }
+      (position)=> this.setState({lat: position.coords.latitude})  ,
+      (err)=>this.setState({lat: err.message})
     );
-
   }
-//never make a call in render method, this is called many times
+  renderContent() {
+        if(this.state.errorMessage && !this.state.lat){
+          return <div>Error {this.state.errorMessage}</div>
+        }
+
+        if(this.state.lat && !this.state.errorMessage){
+          return <SeasonDisplay lat={this.state.lat}> </SeasonDisplay>
+        }
+
+        if(!this.state.errorMessage && !this.state.lat){
+          return <Spinner message= "Allow Location"/>
+        }
+  }
+//never make a call in render method, this is called many times. This method is required
   render(){
-
-    if(this.state.errorMessage && !this.state.lat){
-      return <div>Error {this.state.errorMessage}</div>
-    }
-
-    if(this.state.lat && !this.state.errorMessage){
-      return <div>Lat {this.state.lat}</div>
-    }
-
-    if(!this.state.errorMessage && !this.state.lat){
-      return <div>Loading</div>
-    }
+  return (<div  >{this.renderContent()}</div>)
   }
 }
 ReactDOM.render(
